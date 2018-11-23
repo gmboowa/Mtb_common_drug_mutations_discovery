@@ -7,16 +7,16 @@ echo $"Written by"  'Gerald Mboowa 🙏🧘 🍷🐒😍 ☣ 🇩🇪 ' | sed $'
 
 echo $"This is" 'FastQC MultiQC Snippy Rapid Bacterial SNP Calling Script  Version 1.0.0' | sed $'s/FastQC MultiQC Snippy Rapid Bacterial SNP Calling Script  Version 1.0.0/\e[36m&\e[0m/';
 
-echo $"Author email"  'gmboowa@gmail.com' or 'gerald.mboowa@chs.mak.ac.ug' or 'mboowa@bcm.edu' or 'mboowa@alumni.bcm.edu' | sed $'s/gmboowa@gmail.com or gerald.mboowa@chs.mak.ac.ug or mboowa@bcm.edu or mboowa@alumni.bcm.edu/\e[33m&\e[0m/';
+echo $"Author email"  '...@gmail.com' or '...@chs.mak.ac.ug' or '...@bcm.edu' or '...@alumni.bcm.edu' | sed $'s/...@gmail.com or ...@chs.mak.ac.ug or ...@bcm.edu or ...@alumni.bcm.edu/\e[33m&\e[0m/';
 
 cd ~/working-directory
 
 echo $"Now Running FastQC for the Samples" | sed $'s/Now Running FastQC for the Samples/\e[32m&\e[0m/';
 
-for sample in `cat /Users/geraldmboowa/MTB/ERR78.txt`
+for sample in `cat list.txt`
 do
 
-    fastqc ${sample}*.fastq.gz
+    fastqc ${sample}*_1.fastq.gz   ${sample}*_2.fastq.gz
 
 done
 
@@ -36,7 +36,7 @@ do
 ~/snippy --cpus 16 --outdir ${sample}.snps --ref ~/NCBI_Reference.gbk --R1 $R1 --R2 $R2
 
 
-echo $"Now Running MTB Uganda Genotype and Drug Resistance Annotations for the Samples" | sed $'s/Now Running MTB Uganda Genotype and Drug Resistance Annotations for the Samples/\e[31m&\e[0m/';
+echo $"Now Running MTB Ug.Genotype and Drug Resistance Annotations for the Samples" | sed $'s/Now Running MTB Ug.Genotype and Drug Resistance Annotations for the Samples/\e[31m&\e[0m/';
 
 { grep -E "ahpC|fabG1|inhA|katG|ndh|rpoB|embA|embB|embC|embR|iniA|iniC|manB|rmlD|pncA|rpsA|gyrA|gyrB|rpsL|gidB|rrs|tlyA|eis" ${sample}.snps/snps.tab | grep "missense_variant" ; egrep -w --color -E 'p.Thr80Ala|874787|1501468' ${sample}.snps/snps.tab;}  > ${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt
 
@@ -44,7 +44,7 @@ echo $"Now Running Summaries for MTB Genotype and Drug Resistance for the Sample
 
 { grep -q -E 'p.Thr80Ala|7539' ${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt; if [ $? -eq 0 ]; then echo "MTB Uganda Detected" ; fi ; grep -q  '874787' ${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt; if [ $? -eq 0 ]; then echo "MTB Uganda I Detected" ; fi ; grep -q  '1501468' ${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt; if [ $? -eq 0 ]; then echo "MTB Uganda II Detected" ; fi ; grep -q  'rpoB' ${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt; if [ $? -eq 0 ]; then echo "Rifampicin Resistance Detected" ; fi; grep -q -E  'embA|embB|embC|embR|iniA|iniC|manB|rmlD'  ${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt; if [ $? -eq 0 ]; then echo "Ethambutol Resistance Detected" ; fi; grep -q  'gyrA'  ${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt; if [ $? -eq 0 ]; then echo "Ofloxacin | Moxifloxacin | Ciprofloxacin Resistance Detected" ; fi ; grep -q  'rpsL'  ${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt; if [ $? -eq 0 ]; then echo "Streptomycin Resistance Detected" ; fi; grep -q  'eis'  ${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt; if [ $? -eq 0 ]; then echo "Kanamycin Resistance Detected" ; fi; grep -q -E  "gidB|rrs|tlyA"  ${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt; if [ $? -eq 0 ]; then echo "Amikacin | Capreomycin Resistance Detected" ; fi; grep -q -E  'pncA|rpsA' ${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt; if [ $? -eq 0 ]; then echo "Pyrazinamide Resistance Detected" ; fi; grep -q -E  'ahpC|fabG1|inhA|katG|ndh' ${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt; if [ $? -eq 0 ]; then echo "Isoniazid Resistance Detected" ; fi;} > ${sample}.Summary-and-Interpretation-of-UG-MTB-Genotype-and-Drug_resistance.txt
 
-##Interpretation of Multi-Drug Resistant Mycobacterium tuberculosis and Uganda Genotypes
+##Interpretation of Multi-Drug Resistant Mycobacterium tuberculosis and Ug.Genotypes
 ##For Multi-drug Resistant (MDR-tuberculosis)
 
 { grep -q -E 'Rifampicin Resistance Detected|Isoniazid Resistance Detected' ${sample}.Summary-and-Interpretation-of-UG-MTB-Genotype-and-Drug_resistance.txt; if [ $? -eq 0 ]; then echo "Rifampicin Resistance Detected|Isoniazid Resistance Detected" ; fi ;} > ${sample}.MDR-TB.txt
@@ -75,16 +75,16 @@ grep -E 'Rifampicin Resistance Detected|Isoniazid Resistance Detected' ${sample}
 ## deletes  "*.Extensively-drug-resistant-tuberculosis-XDR-TB.txt" file if it misses the Multi-Drug Resistant Tuberculosis Detected
 
 
-echo $"Interrogating files for MTB Uganda I and New Missense Variant {1481321} Detected" | sed $'s/Interrogating files for MTB Uganda I and New Missense Variant {1481321} Detected/\e[36m&\e[0m/';
+echo $"Interrogating files for MTB Uganda I and New Missense Variant {Novel} Detected" | sed $'s/Interrogating files for MTB Uganda I and New Missense Variant {Novel} Detected/\e[36m&\e[0m/';
 
-{ grep -q '874787' ${sample}.snps/snps.tab && grep -q '1481321' ${sample}.snps/snps.tab && echo "MTB Uganda I and New Missense Variant {1481321} Detected";} >  ${sample}.MTB-Uganda-I-and-New-Missense-Variant.txt
+{ grep -q '874787' ${sample}.snps/snps.tab && grep -q 'Novel' ${sample}.snps/snps.tab && echo "MTB Uganda I and New Missense Variant {Novel} Detected";} >  ${sample}.MTB-Uganda-I-and-New-Missense-Variant.txt
 
-echo $"Interrogating files for MTB Uganda II and New Missense Variant {1481321} Detected" | sed $'s/Interrogating files for MTB Uganda II and New Missense Variant {1481321} Detected/\e[36m&\e[0m/';
+echo $"Interrogating files for MTB Uganda II and New Missense Variant {Novel} Detected" | sed $'s/Interrogating files for MTB Uganda II and New Missense Variant {Novel} Detected/\e[36m&\e[0m/';
 
- { grep -q '1481321' ${sample}.snps/snps.tab && grep -q '1501468' ${sample}.snps/snps.tab && echo "MTB Uganda II and New Missense Variant {1481321} Detected";} > ${sample}.MTB-Uganda-II-and-New-Missense-Variant.txt
+ { grep -q 'Novel' ${sample}.snps/snps.tab && grep -q '1501468' ${sample}.snps/snps.tab && echo "MTB Uganda II and New Missense Variant {Novel} Detected";} > ${sample}.MTB-Uganda-II-and-New-Missense-Variant.txt
 
-## Make Script for saving only UG-I or UG-II or the new missense_variant {1481321}
-## Make Script that only prints true for a combination of UG-II plus new missense_variant {1481321}
+## Make Script for saving only UG-I or UG-II or the new missense_variant {Novel}
+## Make Script that only prints true for a combination of UG-II plus new missense_variant {Novel}
 ## Search and delete empty files in the current directory and subdirectories:
 ## -type f is necessary because also directories are marked to be of size zero.
 
@@ -110,7 +110,7 @@ find . -name '*.Extensively-drug-resistant-tuberculosis-XDR-TB.txt' | xargs grep
 
 find . -type f -size 0 -delete
 
-echo $"Did you know that you can also make these scripts yourself only when you put in time to learning how every program you use works?" | sed $'s/Did you know that you can also make these scripts yourself only when you put in time to learning how every program you use works?/\e[33m&\e[0m/';
+echo $"Bioinformatics is not something you are taught, it’s a way of life?" | sed $'s/Bioinformatics is not something you are taught, it’s a way of life?/\e[33m&\e[0m/';
 
 
 ##Get more on these color codes at https://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
