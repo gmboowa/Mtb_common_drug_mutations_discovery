@@ -7,7 +7,7 @@ echo $"Written by"  'Gerald Mboowa 🙏🧘 🍷🐒😍 ☣ 🇩🇪 ' | sed $'
 
 echo $"This is" 'FastQC MultiQC Snippy Rapid Bacterial SNP Calling Script  Version 1.0.0' | sed $'s/FastQC MultiQC Snippy Rapid Bacterial SNP Calling Script  Version 1.0.0/\e[36m&\e[0m/';
 
-echo $"Author email"  'gmboowa@gmail.com' or 'gerald.mboowa@chs.mak.ac.ug' or 'mboowa@bcm.edu' or 'mboowa@alumni.bcm.edu' | sed $'s/gmboowa@gmail.com or gerald.mboowa@chs.mak.ac.ug or mboowa@bcm.edu or mboowa@alumni.bcm.edu/\e[33m&\e[0m/';
+echo $"Author email"  '...@gmail.com' or '...@chs.mak.ac.ug' or '...@bcm.edu' or '...@alumni.bcm.edu' | sed $'s/...@gmail.com or ...@chs.mak.ac.ug or ...@bcm.edu or ...@alumni.bcm.edu/\e[33m&\e[0m/';
 
 ##For MTB the references utilised here include;
 ##https://www.thelancet.com/pdfs/journals/laninf/PIIS1473-3099(15)00062-6.pdf {Whole-genome sequencing for prediction of Mycobacterium tuberculosis drug susceptibility and resistance: a retrospective cohort study}
@@ -17,10 +17,10 @@ cd ~/working-directory
 
 echo $"Now Running FastQC for the Samples" | sed $'s/Now Running FastQC for the Samples/\e[32m&\e[0m/';
 
-for sample in `cat sample-list.txt`
+for sample in `cat list.txt`
 do
 
-    fastqc ${sample}*.fastq.gz
+    fastqc ${sample}*_1.fastq.gz ${sample}*_2.fastq.gz
 
 done
 
@@ -31,7 +31,7 @@ multiqc .
 echo $"Now Running Snippy for the Samples" | sed $'s/Now Running Snippy for the Samples/\e[33m&\e[0m/';
 
 
-for sample in `cat sample-list.txt`
+for sample in `cat list.txt`
 do
 
   R1=${sample}_1.fastq.gz
@@ -40,7 +40,7 @@ do
 ~/snippy --cpus 16 --outdir ${sample}.snps --ref ~/NCBI_Reference.gbk --R1 $R1 --R2 $R2
 
 
-echo $"Now Running MTB Uganda Genotype and Drug Resistance Annotations for the Samples" | sed $'s/Now Running MTB Uganda Genotype and Drug Resistance Annotations for the Samples/\e[31m&\e[0m/';
+echo $"Now Running MTB Uga.Genotype and Drug Resistance Annotations for the Samples" | sed $'s/Now Running MTB Ug.Genotype and Drug Resistance Annotations for the Samples/\e[31m&\e[0m/';
 
 { grep -E "ahpC|fabG1|inhA|katG|ndh|rpoB|embA|embB|embC|embR|iniA|iniC|manB|rmlD|pncA|rpsA|gyrA|gyrB|rpsL|gidB|rrs|tlyA|eis" ${sample}.snps/snps.tab | grep "missense_variant" ; egrep -w --color -E 'p.Thr80Ala|874787|1501468' ${sample}.snps/snps.tab;}  > ${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt
 
