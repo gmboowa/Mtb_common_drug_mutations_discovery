@@ -1,82 +1,95 @@
-# Mtb Common Drug Mutations Discovery
 
-## Overview
-This repository focuses on UG sub-lineage mutations and drug resistance mutation discovery for *Mycobacterium tuberculosis* (MTB). It leverages tools like **FastQC**, **MultiQC**, and **Snippy** for rapid bacterial SNP genotype and drug resistance calling (Version 1.0.0).
+# MTB Genotype and Drug Resistance Summary Script
 
----
-
-## Author
-Gerald Mboowa
+This Bash script automates the detection and summary of **Mycobacterium tuberculosis (MTB)** genotypes and associated drug resistance markers from a set of result files. It is tailored for samples analyzed using genotype and resistance profiling tools and identifies specific mutations and gene markers relevant to Ugandan MTB strains and drug resistance.
 
 ---
 
-## Synopsis
-**Snippy** identifies SNPs between a haploid reference genome and HTS datasets. It detects both substitutions (SNPs) and insertions/deletions (indels). Snippy is designed for speed and efficiency, supporting multi-threading on a single machine. It produces consistent output files in a single folder. (Tested with Snippy 4.3.2 - [Torsten Seemann's Snippy](https://github.com/tseemann/snippy)).
+## What It Does
 
-### Key Tools:
-1. **FastQC**  
-   Provides quality control checks on raw sequence data from high-throughput sequencing pipelines.
+For each sample listed in `list.txt`, the script:
 
-2. **MultiQC**  
-   Aggregates analysis logs into a single HTML report, summarizing outputs from multiple tools like FastQC.
+- Detects presence of **MTB Uganda lineage** markers (general, Uganda I, Uganda II).
+- Checks for resistance mutations associated with the following anti-TB drugs:
+  - **Rifampicin**
+  - **Ethambutol**
+  - **Fluoroquinolones** (e.g., Ofloxacin, Moxifloxacin, Ciprofloxacin)
+  - **Streptomycin**
+  - **Kanamycin**
+  - **Amikacin & Capreomycin**
+  - **Pyrazinamide**
+  - **Isoniazid**
 
-3. **Snippy**  
-   Processes samples for SNP discovery and annotation.
-
-4. **MTB Genotypes and Drug Resistance Annotations**  
-   Identifies MTB sub-lineages and drug resistance mutations, including MDR and XDR strains.
-
-5. **Redundant File Cleanup**  
-   Deletes unnecessary files generated during the pipeline execution.
-
----
-
-## Output Files
-The pipeline generates the following output files:
-- Text files detailing **MTB genotypes**
-- Text files summarizing **drug resistance mutations** for both MDR and XDR strains
+The script outputs a summary interpretation file for each sample, named:
+```
+<SAMPLE>.Summary-and-Interpretation-of-UG-MTB-Genotype-and-Drug_resistance.txt
+```
 
 ---
 
-## Issues
-For suggestions or to report bugs, please use the [Issue Tracker](https://github.com/gmboowa/Mtb_common_drug_mutations_discovery/issues).
+## Input Files
+
+- `list.txt`: A text file containing one sample name per line (without file extensions).
+- For each sample, a corresponding result file must be present:
+  ```
+  <SAMPLE>.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt
+  ```
 
 ---
 
-## Requirements
+## How to Run
 
-### Software
-- **FastQC**
-- **MultiQC**
-- **Perl** (>= 5.12)  
-  - Modules: `Time::Piece` (core with modern Perl), `Bioperl` (>= 1.6)
-- **BWA MEM** (>= 0.7.12)
-- **Minimap2** (>= 2.0)
-- **Samtools** (>= 1.7)
-- **Bedtools** (>= 2.0)
-- **BCFtools** (>= 1.7)
-- **GNU Parallel** (>= 2013xxxx)
-- **FreeBayes** (>= 1.1)  
-  - Includes: `freebayes`, `freebayes-parallel`, `fasta_generate_regions.py`
-- **VCFtools (vcflib)** (>= 1.0)  
-  - Includes: `vcfstreamsort`, `vcfuniq`, `vcffirstheader`
-- **VT** (>= 0.5)
-- **ReadSeq** (>= 2.0)
-- **SnpEff** (>= 4.3)
-- **Samclip** (>= 0.2)
-- **Seqtk** (>= 1.2)
-- **Snp-Sites** (>= 2.0)
-- **Wgsim** (>= 1.8) (for testing only)
+Make sure the script is executable:
+```bash
+chmod +x mtb_genotype_summary.sh
+```
 
-### Bundled Binaries
-This pipeline has been tested on **macOS Mojave** using precompiled binaries.
+Then run the script:
+```bash
+./mtb_genotype_summary.sh
+```
 
 ---
 
-## Disclaimer
-Ensure the listed dependencies are properly installed and configured before running the pipeline. Refer to the respective tool documentation for detailed installation and usage guidelines.
+## Output
+
+For each sample in `list.txt`, a summary file will be created highlighting:
+
+- Lineage detection (e.g., MTB Uganda I, MTB Uganda II)
+- Detected drug resistance mutations by gene or mutation type
+
+Example output content:
+```
+MTB Uganda Detected
+MTB Uganda II Detected
+Rifampicin Resistance Detected
+Isoniazid Resistance Detected
+```
 
 ---
 
-## Contact
-For further inquiries or collaborations, please contact the author.
+## Genes & Mutations Monitored
+
+| Drug                  | Genes / Mutations Checked                     |
+|-----------------------|-----------------------------------------------|
+| **Rifampicin**        | `rpoB`                                        |
+| **Ethambutol**        | `embA`, `embB`, `embC`, `embR`, `iniA`, `iniC`, `manB`, `rmlD` |
+| **Fluoroquinolones**  | `gyrA`                                        |
+| **Streptomycin**      | `rpsL`                                        |
+| **Kanamycin**         | `eis`                                         |
+| **Amikacin/Capreomycin** | `gidB`, `rrs`, `tlyA`                     |
+| **Pyrazinamide**      | `pncA`, `rpsA`                                |
+| **Isoniazid**         | `ahpC`, `fabG1`, `inhA`, `katG`, `ndh`       |
+
+---
+
+## Notes
+
+- Ensure all `.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt` files are present in the same directory as the script.
+- The script assumes specific variant IDs (`p.Thr80Ala`, `7539`, etc.) for MTB Uganda lineage detection.
+
+---
+
+## License
+
+This script is provided under the MIT License.
