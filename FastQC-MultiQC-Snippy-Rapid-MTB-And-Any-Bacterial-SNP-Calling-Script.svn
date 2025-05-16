@@ -1,57 +1,74 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail  # Enable strict error handling
 
-# Process MTB genotype and drug resistance for each sample
-for sample in $(cat list.txt); do
-  {
-    # Check for MTB Uganda detection
-    if grep -q -E 'p.Thr80Ala|7539' "${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt"; then
-      echo "MTB Uganda Detected"
-    fi
-    if grep -q '874787' "${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt"; then
-      echo "MTB Uganda I Detected"
-    fi
-    if grep -q '1501468' "${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt"; then
-      echo "MTB Uganda II Detected"
-    fi
+# Configuration
+INPUT_LIST="list.txt"
+PATTERNS=(
+    ["Uganda_Strain"]='p.Thr80Ala|7539'
+    ["Uganda_I"]='874787'
+    ["Uganda_II"]='1501468'
+    ["Rifampicin"]='rpoB'
+    ["Ethambutol"]='embA|embB|embC|embR|iniA|iniC|manB|rmlD'
+    ["Fluoroquinolone"]='gyrA'
+    ["Streptomycin"]='rpsL'
+    ["Kanamycin"]='eis'
+    ["Amikacin/Capreomycin"]='gidB|rrs|tlyA'
+    ["Pyrazinamide"]='pncA|rpsA'
+    ["Isoniazid"]='ahpC|fabG1|inhA|katG|ndh'
+)
 
-    # Check for Rifampicin resistance
-    if grep -q 'rpoB' "${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt"; then
-      echo "Rifampicin Resistance Detected"
-    fi
+# Validate input
+[[ -f "$INPUT_LIST" ]] || { echo "Error: Missing input list $INPUT_LIST"; exit 1; }
 
-    # Check for Ethambutol resistance
-    if grep -q -E 'embA|embB|embC|embR|iniA|iniC|manB|rmlD' "${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt"; then
-      echo "Ethambutol Resistance Detected"
-    fi
+process_sample() {
+    local sample=$1
+    local input_file="${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt"
+    local output_file="${sample}.Summary-and-Interpretation-of-UG-MTB-Genotype-and-Drug_resistance.txt"
+    
+    [[ -f "$input_file" ]] || { echo "Error: Missing input file $input_file"; return 1; }
 
-    # Check for Fluoroquinolone resistance
-    if grep -q 'gyrA' "${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt"; then
-      echo "Ofloxacin | Moxifloxacin | Ciprofloxacin Resistance Detected"
-    fi
+    # Initialize output with timestamp
+    echo "Analysis Report for: $sample" > "$output_file"
+    echo "Generated: $(date)" >> "$output_file"
+    echo "----------------------------------------" >> "$output_file"
 
-    # Check for Streptomycin resistance
-    if grep -q 'rpsL' "${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt"; then
-      echo "Streptomycin Resistance Detected"
-    fi
+    # Single-pass pattern scanning using awk
+    awk -v patterns="${!PATTERNS[*]}" '
+    BEGIN {
+        split(patterns, pattern_names, " ")
+        for (i in pattern_names) {
+            pattern_map[pattern_names[i]] = 1
+        }
+    }
+    {
+        for (pattern in pattern_map) {
+            if ($0 ~ ENVIRON["PATTERNS_"pattern]) {
+                detected[pattern] = 1
+            }
+        }
+    }
+    END {
+        print "STRAIN TYPING:"
+        if ("Uganda_Strain" in detected) print "MTB Uganda Detected"
+        if ("Uganda_I" in detected) print "MTB Uganda I Detected"
+        if ("Uganda_II" in detected) print "MTB Uganda II Detected"
+        
+        print "\nDRUG RESISTANCE:"
+        if ("Rifampicin" in detected) print "Rifampicin Resistance"
+        if ("Ethambutol" in detected) print "Ethambutol Resistance"
+        if ("Fluoroquinolone" in detected) print "Fluoroquinolone Resistance (Ofloxacin/Moxifloxacin/Ciprofloxacin)"
+        if ("Streptomycin" in detected) print "Streptomycin Resistance"
+        if ("Kanamycin" in detected) print "Kanamycin Resistance"
+        if ("Amikacin/Capreomycin" in detected) print "Amikacin/Capreomycin Resistance"
+        if ("Pyrazinamide" in detected) print "Pyrazinamide Resistance"
+        if ("Isoniazid" in detected) print "Isoniazid Resistance"
+    }' "$input_file" >> "$output_file"
+}
 
-    # Check for Kanamycin resistance
-    if grep -q 'eis' "${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt"; then
-      echo "Kanamycin Resistance Detected"
-    fi
+# Main execution
+while read -r sample; do
+    echo "Processing $sample..."
+    process_sample "$sample"
+done < "$INPUT_LIST"
 
-    # Check for Amikacin and Capreomycin resistance
-    if grep -q -E 'gidB|rrs|tlyA' "${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt"; then
-      echo "Amikacin | Capreomycin Resistance Detected"
-    fi
-
-    # Check for Pyrazinamide resistance
-    if grep -q -E 'pncA|rpsA' "${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt"; then
-      echo "Pyrazinamide Resistance Detected"
-    fi
-
-    # Check for Isoniazid resistance
-    if grep -q -E 'ahpC|fabG1|inhA|katG|ndh' "${sample}.Details-of-UG-MTB-Genotype-and-Drug_resistance.txt"; then
-      echo "Isoniazid Resistance Detected"
-    fi
-  } > "${sample}.Summary-and-Interpretation-of-UG-MTB-Genotype-and-Drug_resistance.txt"
-done
+echo "Analysis complete. Results saved to ./*Summary-and-Interpretation*.txt"
