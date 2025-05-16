@@ -1,11 +1,10 @@
-
-# MTB Genotype and Drug Resistance Summary Script
+# MTB genotype & drug resistance summary
 
 This Bash script automates the detection and summary of **Mycobacterium tuberculosis (MTB)** genotypes and associated drug resistance markers from a set of result files. It is tailored for samples analyzed using genotype and resistance profiling tools and identifies specific mutations and gene markers relevant to Ugandan MTB strains and drug resistance.
 
 ---
 
-## What It Does
+## What it does
 
 For each sample listed in `list.txt`, the script:
 
@@ -27,7 +26,7 @@ The script outputs a summary interpretation file for each sample, named:
 
 ---
 
-## Input Files
+## Input files
 
 - `list.txt`: A text file containing one sample name per line (without file extensions).
 - For each sample, a corresponding result file must be present:
@@ -37,14 +36,16 @@ The script outputs a summary interpretation file for each sample, named:
 
 ---
 
-## How to Run
+## How to run
 
 Make sure the script is executable:
+
 ```bash
 chmod +x mtb_genotype_summary.sh
 ```
 
 Then run the script:
+
 ```bash
 ./mtb_genotype_summary.sh
 ```
@@ -59,6 +60,7 @@ For each sample in `list.txt`, a summary file will be created highlighting:
 - Detected drug resistance mutations by gene or mutation type
 
 Example output content:
+
 ```
 MTB Uganda Detected
 MTB Uganda II Detected
@@ -68,9 +70,9 @@ Isoniazid Resistance Detected
 
 ---
 
-## Genes & Mutations Monitored
+## Genes & mutations monitored
 
-| Drug                  | Genes / Mutations Checked                     |
+| Drug                  | Genes / mutations checked                     |
 |-----------------------|-----------------------------------------------|
 | **Rifampicin**        | `rpoB`                                        |
 | **Ethambutol**        | `embA`, `embB`, `embC`, `embR`, `iniA`, `iniC`, `manB`, `rmlD` |
@@ -93,3 +95,4 @@ Isoniazid Resistance Detected
 ## License
 
 This script is provided under the MIT License.
+
